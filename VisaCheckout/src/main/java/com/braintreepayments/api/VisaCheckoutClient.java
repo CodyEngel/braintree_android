@@ -3,7 +3,9 @@ package com.braintreepayments.api;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import com.visa.checkout.CheckoutButton;
 import com.visa.checkout.Environment;
+import com.visa.checkout.VisaCheckoutSdk;
 
 import java.util.List;
 
@@ -15,15 +17,17 @@ public class VisaCheckoutClient {
 
     private final BraintreeClient braintreeClient;
     private final TokenizationClient tokenizationClient;
+    private ClassHelper classHelper;
 
     public VisaCheckoutClient(BraintreeClient braintreeClient) {
-        this(braintreeClient, new TokenizationClient(braintreeClient));
+        this(braintreeClient, new TokenizationClient(braintreeClient), new ClassHelper());
     }
 
     @VisibleForTesting
-    VisaCheckoutClient(BraintreeClient braintreeClient, TokenizationClient tokenizationClient) {
+    VisaCheckoutClient(BraintreeClient braintreeClient, TokenizationClient tokenizationClient, ClassHelper classHelper) {
         this.braintreeClient = braintreeClient;
         this.tokenizationClient = tokenizationClient;
+        this.classHelper = classHelper;
     }
 
     /**
@@ -36,7 +40,10 @@ public class VisaCheckoutClient {
         braintreeClient.getConfiguration(new ConfigurationCallback() {
             @Override
             public void onResult(@Nullable Configuration configuration, @Nullable Exception e) {
-                if (!configuration.isVisaCheckoutEnabled()) {
+                boolean enabledAndSdkAvailable =
+                        classHelper.isClassAvailable("com.visa.checkout.VisaCheckoutSdk") && configuration.isVisaCheckoutEnabled();
+
+                if (!enabledAndSdkAvailable) {
                     callback.onResult(null, new ConfigurationException("Visa Checkout is not enabled."));
                     return;
                 }
@@ -54,15 +61,6 @@ public class VisaCheckoutClient {
             }
         });
     }
-//
-//    static boolean isVisaCheckoutSDKAvailable() {
-//        try {
-//            Class.forName("com.visa.checkout.VisaCheckoutSdk");
-//            return true;
-//        } catch (ClassNotFoundException e) {
-//            return false;
-//        }
-//    }
 
     /**
      * Tokenizes the payment summary of the Visa Checkout flow.
