@@ -1,7 +1,6 @@
 package com.braintreepayments.api;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -50,21 +49,16 @@ public class VisaCheckoutButtonContainer extends ViewGroup {
         addView(checkoutButton);
     }
 
-    public void initialize(VisaCheckoutClient client, final FragmentActivity activity, VisaCheckoutProfileBuilder profileBuilder, final VisaCheckoutPurchaseInfo purchaseInfo, final VisaCheckoutButtonInitializeCallback callback) {
-        client.createProfileBuilder(new VisaCheckoutCreateProfileBuilderCallback() {
+    public void initialize(final FragmentActivity activity, VisaCheckoutProfile profile, final VisaCheckoutPurchaseInfo purchaseInfo, final VisaCheckoutButtonInitializeCallback callback) {
+        checkoutButton.init(activity, profile.getProfile(), purchaseInfo.getPurchaseInfo(), new VisaCheckoutSdk.VisaCheckoutResultListener() {
             @Override
-            public void onResult(Profile.ProfileBuilder profileBuilder, Exception error) {
-                checkoutButton.init(activity, profileBuilder.build(), purchaseInfo.getPurchaseInfo(), new VisaCheckoutSdk.VisaCheckoutResultListener() {
-                    @Override
-                    public void onButtonClick(LaunchReadyHandler launchReadyHandler) {
-                        launchReadyHandler.launch();
-                    }
+            public void onButtonClick(LaunchReadyHandler launchReadyHandler) {
+                launchReadyHandler.launch();
+            }
 
-                    @Override
-                    public void onResult(VisaPaymentSummary visaPaymentSummary) {
-                        callback.onResult(visaPaymentSummary, null);
-                    }
-                });
+            @Override
+            public void onResult(VisaPaymentSummary visaPaymentSummary) {
+                callback.onResult(visaPaymentSummary, null);
             }
         });
     }

@@ -6,12 +6,13 @@ import java.math.BigDecimal;
 
 public class VisaCheckoutPurchaseInfo {
 
-    public VisaCheckoutPurchaseInfo() {}
+    private PurchaseInfo.PurchaseInfoBuilder purchaseInfoBuilder;
+
+    public VisaCheckoutPurchaseInfo(String amount, String currency) {
+        purchaseInfoBuilder = new PurchaseInfo.PurchaseInfoBuilder(new BigDecimal(amount), PurchaseInfo.Currency.USD);
+    }
 
     public PurchaseInfo getPurchaseInfo() {
-        PurchaseInfo purchaseInfo = new PurchaseInfo.PurchaseInfoBuilder(new BigDecimal("1.00"), PurchaseInfo.Currency.USD)
-                .setDescription("Description")
-                .build();
-        return purchaseInfo;
+        return purchaseInfoBuilder.build();
     }
 }

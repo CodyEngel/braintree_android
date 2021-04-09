@@ -71,12 +71,9 @@ public class VisaCheckoutClient {
                     environment = Environment.PRODUCTION;
                 }
 
-                Profile.ProfileBuilder profileBuilder = new Profile.ProfileBuilder(merchantApiKey, environment);
-                profileBuilder.setCardBrands(acceptedCardBrands.toArray(new String[acceptedCardBrands.size()]));
-                profileBuilder.setDataLevel(Profile.DataLevel.FULL);
-                profileBuilder.setExternalClientId(configuration.getVisaCheckoutExternalClientId());
+                VisaCheckoutProfile profile = new VisaCheckoutProfile(merchantApiKey, environment, acceptedCardBrands, configuration.getVisaCheckoutExternalClientId());
 
-                callback.onResult(profileBuilder, null);
+                callback.onResult(profile, null);
             }
         });
     }
