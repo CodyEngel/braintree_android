@@ -3,6 +3,8 @@ package com.braintreepayments.api;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import com.visa.checkout.Environment;
+
 import java.util.List;
 
 /**
@@ -34,10 +36,7 @@ public class VisaCheckoutClient {
         braintreeClient.getConfiguration(new ConfigurationCallback() {
             @Override
             public void onResult(@Nullable Configuration configuration, @Nullable Exception e) {
-                boolean enabledAndSdkAvailable =
-                    isVisaCheckoutSDKAvailable() && configuration.isVisaCheckoutEnabled();
-
-                if (!enabledAndSdkAvailable) {
+                if (!configuration.isVisaCheckoutEnabled()) {
                     callback.onResult(null, new ConfigurationException("Visa Checkout is not enabled."));
                     return;
                 }
@@ -45,21 +44,25 @@ public class VisaCheckoutClient {
                 String merchantApiKey = configuration.getVisaCheckoutApiKey();
                 List<String> acceptedCardBrands = configuration.getVisaCheckoutSupportedNetworks();
 
-                VisaCheckoutProfile profile = new VisaCheckoutProfile(merchantApiKey, configuration.getEnvironment(), acceptedCardBrands, configuration.getVisaCheckoutExternalClientId());
+                String environment = "sandbox";
+                if ("production".equals(configuration.getEnvironment())) {
+                    environment = "production";
+                }
+                VisaCheckoutProfile profile = new VisaCheckoutProfile(merchantApiKey, environment, acceptedCardBrands, configuration.getVisaCheckoutExternalClientId());
 
                 callback.onResult(profile, null);
             }
         });
     }
-
-    static boolean isVisaCheckoutSDKAvailable() {
-        try {
-            Class.forName("com.visa.checkout.VisaCheckoutSdk");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
+//
+//    static boolean isVisaCheckoutSDKAvailable() {
+//        try {
+//            Class.forName("com.visa.checkout.VisaCheckoutSdk");
+//            return true;
+//        } catch (ClassNotFoundException e) {
+//            return false;
+//        }
+//    }
 
     /**
      * Tokenizes the payment summary of the Visa Checkout flow.

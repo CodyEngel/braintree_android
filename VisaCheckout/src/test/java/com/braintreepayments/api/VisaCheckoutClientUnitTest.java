@@ -1,5 +1,6 @@
 package com.braintreepayments.api;
 
+import com.visa.checkout.Environment;
 import com.visa.checkout.Profile.CardBrand;
 
 import org.junit.Before;
@@ -8,12 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -54,9 +50,7 @@ public class VisaCheckoutClientUnitTest {
     }
 
     @Test
-    public void createProfileBuilder_whenProduction_usesProductionConfig() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
-
+    public void createProfileBuilder_passesConfigDetailsToVisaCheckoutProfile() throws Exception {
         TokenizationClient tokenizationClient = new MockTokenizationClientBuilder().build();
         String configString = new TestConfigurationBuilder()
                 .environment("production")
@@ -71,26 +65,25 @@ public class VisaCheckoutClientUnitTest {
                 .build();
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
-        sut.createProfileBuilder(new VisaCheckoutCreateProfileBuilderCallback() {
-            @Override
-            public void onResult(VisaCheckoutProfile profile, Exception error) {
-                List<String> expectedCardBrands = Arrays.asList(CardBrand.VISA, CardBrand.MASTERCARD);
-                assertNotNull(profile);
-                assertEquals(expectedCardBrands.toArray(), profile.getProfile().getAcceptedCardBrands());
-                lock.countDown();
-            }
-        });
+        VisaCheckoutCreateProfileBuilderCallback callback = mock(VisaCheckoutCreateProfileBuilderCallback.class);
+        sut.createProfileBuilder(callback);
 
-        lock.await();
+        ArgumentCaptor<VisaCheckoutProfile> captor = ArgumentCaptor.forClass(VisaCheckoutProfile.class);
+        verify(callback).onResult(captor.capture(), (Exception) isNull());
+
+        VisaCheckoutProfile profile = captor.getValue();
+        assertEquals(Environment.PRODUCTION, profile.getEnvironment());
+        assertEquals("gwApiKey", profile.getMerchantApiKey());
+        assertEquals("gwExternalClientId", profile.getExternalClientId());
+        assertEquals(CardBrand.VISA, profile.getAcceptedCardBrands().get(0));
+        assertEquals(CardBrand.MASTERCARD, profile.getAcceptedCardBrands().get(1));
     }
 
     @Test
-    public void createProfileBuilder_whenNotProduction_usesSandboxConfig() throws Exception {
-        final CountDownLatch lock = new CountDownLatch(1);
-
+    public void createProfileBuilder_whenProduction_setsVisaCheckoutProfileEnvironmentProduction() throws Exception {
         TokenizationClient tokenizationClient = new MockTokenizationClientBuilder().build();
         String configString = new TestConfigurationBuilder()
-                .environment("environment")
+                .environment("production")
                 .visaCheckout(new TestConfigurationBuilder.TestVisaCheckoutConfigurationBuilder()
                         .apikey("gwApiKey")
                         .supportedCardTypes(CardBrand.VISA, CardBrand.MASTERCARD)
@@ -102,17 +95,40 @@ public class VisaCheckoutClientUnitTest {
                 .build();
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
-        sut.createProfileBuilder(new VisaCheckoutCreateProfileBuilderCallback() {
-            @Override
-            public void onResult(VisaCheckoutProfile profile, Exception error) {
-                List<String> expectedCardBrands = Arrays.asList(CardBrand.VISA, CardBrand.MASTERCARD);
-                assertNotNull(profile);
-                assertEquals(expectedCardBrands.toArray(), profile.getProfile().getAcceptedCardBrands());
-                lock.countDown();
-            }
-        });
+        VisaCheckoutCreateProfileBuilderCallback callback = mock(VisaCheckoutCreateProfileBuilderCallback.class);
+        sut.createProfileBuilder(callback);
 
-        lock.await();
+        ArgumentCaptor<VisaCheckoutProfile> captor = ArgumentCaptor.forClass(VisaCheckoutProfile.class);
+        verify(callback).onResult(captor.capture(), (Exception) isNull());
+
+        VisaCheckoutProfile profile = captor.getValue();
+        assertEquals(Environment.PRODUCTION, profile.getEnvironment());
+    }
+
+    @Test
+    public void createProfileBuilder_whenNotProduction_setsVisaCheckoutProfileEnvironmentSandbox() throws Exception {
+        TokenizationClient tokenizationClient = new MockTokenizationClientBuilder().build();
+        String configString = new TestConfigurationBuilder()
+                .environment("environment")
+                .visaCheckout(new TestConfigurationBuilder.TestVisaCheckoutConfigurationBuilder()
+                        .apikey("gwApiKey")
+                        .supportedCardTypes("VISA", "MASTERCARD")
+                        .externalClientId("gwExternalClientId"))
+                .build();
+
+        BraintreeClient braintreeClient = new MockBraintreeClientBuilder()
+                .configuration(Configuration.fromJson(configString))
+                .build();
+        VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
+
+        VisaCheckoutCreateProfileBuilderCallback callback = mock(VisaCheckoutCreateProfileBuilderCallback.class);
+        sut.createProfileBuilder(callback);
+
+        ArgumentCaptor<VisaCheckoutProfile> captor = ArgumentCaptor.forClass(VisaCheckoutProfile.class);
+        verify(callback).onResult(captor.capture(), (Exception) isNull());
+
+        VisaCheckoutProfile profile = captor.getValue();
+        assertEquals(Environment.SANDBOX, profile.getEnvironment());
     }
 
     @Test
