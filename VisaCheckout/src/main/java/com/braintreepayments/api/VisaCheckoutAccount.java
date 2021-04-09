@@ -1,7 +1,5 @@
 package com.braintreepayments.api;
 
-import com.visa.checkout.VisaPaymentSummary;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,14 +19,14 @@ public class VisaCheckoutAccount extends PaymentMethod {
     /**
      * @param visaPaymentSummary returned from Visa Checkout after a successful payment.
      */
-    public VisaCheckoutAccount(VisaPaymentSummary visaPaymentSummary) {
+    public VisaCheckoutAccount(VisaCheckoutPaymentSummary visaPaymentSummary) {
         if (visaPaymentSummary == null) {
             return;
         }
 
         mCallId = visaPaymentSummary.getCallId();
-        mEncryptedKey = visaPaymentSummary.getEncKey();
-        mEncryptedPaymentData = visaPaymentSummary.getEncPaymentData();
+        mEncryptedKey = visaPaymentSummary.getEncryptedKey();
+        mEncryptedPaymentData = visaPaymentSummary.getEncryptedPaymentData();
     }
 
     @Override

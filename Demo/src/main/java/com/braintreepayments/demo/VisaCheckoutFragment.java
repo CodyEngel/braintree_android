@@ -13,9 +13,9 @@ import com.braintreepayments.api.PaymentMethodNonce;
 import com.braintreepayments.api.VisaCheckoutButtonContainer;
 import com.braintreepayments.api.VisaCheckoutButtonInitializeCallback;
 import com.braintreepayments.api.VisaCheckoutClient;
+import com.braintreepayments.api.VisaCheckoutPaymentSummary;
 import com.braintreepayments.api.VisaCheckoutProfile;
 import com.braintreepayments.api.VisaCheckoutPurchaseInfo;
-import com.visa.checkout.VisaPaymentSummary;
 
 public class VisaCheckoutFragment extends BaseFragment {
 
@@ -46,7 +46,7 @@ public class VisaCheckoutFragment extends BaseFragment {
 
         visaCheckoutButton.initialize(getActivity(), profile, purchaseInfo, new VisaCheckoutButtonInitializeCallback() {
             @Override
-            public void onResult(VisaPaymentSummary paymentSummary, Exception error) {
+            public void onResult(VisaCheckoutPaymentSummary paymentSummary, Exception error) {
                 visaCheckoutClient.tokenize(paymentSummary, (paymentMethodNonce, exception) -> {
                     if (paymentMethodNonce != null) {
                         handlePaymentMethodNonceCreated(paymentMethodNonce);
