@@ -57,7 +57,7 @@ public class VisaCheckoutButtonContainer extends ViewGroup {
 
             @Override
             public void onResult(VisaPaymentSummary visaPaymentSummary) {
-                VisaCheckoutPaymentSummary visaCheckoutPaymentSummary = new VisaCheckoutPaymentSummary(visaPaymentSummary);
+                VisaCheckoutPaymentSummary visaCheckoutPaymentSummary = new VisaCheckoutPaymentSummary(visaPaymentSummary.getCallId(), visaPaymentSummary.getEncKey(), visaPaymentSummary.getEncPaymentData());
                 callback.onResult(visaCheckoutPaymentSummary, null);
             }
         });

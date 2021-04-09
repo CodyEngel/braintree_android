@@ -4,21 +4,25 @@ import com.visa.checkout.VisaPaymentSummary;
 
 public class VisaCheckoutPaymentSummary {
 
-    private VisaPaymentSummary visaPaymentSummary;
+    private String callId;
+    private String encryptedKey;
+    private String encryptedPaymentData;
 
-    public VisaCheckoutPaymentSummary(VisaPaymentSummary visaPaymentSummary) {
-        this.visaPaymentSummary = visaPaymentSummary;
+    public VisaCheckoutPaymentSummary(String callId, String encryptedKey, String encryptedPaymentData) {
+        this.callId = callId;
+        this.encryptedKey = encryptedKey;
+        this.encryptedPaymentData = encryptedPaymentData;
     }
 
     String getCallId() {
-        return visaPaymentSummary.getCallId();
+        return callId;
     }
 
     String getEncryptedKey() {
-        return visaPaymentSummary.getEncKey();
+        return encryptedKey;
     }
 
     String getEncryptedPaymentData() {
-        return visaPaymentSummary.getEncPaymentData();
+        return encryptedPaymentData;
     }
 }

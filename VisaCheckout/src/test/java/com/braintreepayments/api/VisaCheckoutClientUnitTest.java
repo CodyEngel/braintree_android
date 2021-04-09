@@ -1,21 +1,11 @@
 package com.braintreepayments.api;
 
-import com.visa.checkout.Profile;
 import com.visa.checkout.Profile.CardBrand;
-import com.visa.checkout.Profile.ProfileBuilder;
-import com.visa.checkout.VisaCheckoutSdk;
-import com.visa.checkout.VisaPaymentSummary;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.RobolectricTestRunner;
 
 import java.util.Arrays;
@@ -28,30 +18,18 @@ import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@PowerMockIgnore({"org.powermock.*", "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*", "com.visa.checkout.Profile", "com.visa.checkout.Profile.ProfileBuilder"})
-@PrepareForTest({ VisaPaymentSummary.class, VisaCheckoutSdk.class })
-// TODO: Investigate Robolectric / PowerMock Combination test failures
-@Ignore("These tests are failing because of VisaCheckout classes marked 'final'. Using Braintree wrapped types for Visa lib may help here in the future.")
 public class VisaCheckoutClientUnitTest {
 
-    @Rule
-    public PowerMockRule mPowerMockRule = new PowerMockRule();
-
     private Configuration mConfigurationWithVisaCheckout;
-    private VisaPaymentSummary visaPaymentSummary;
+    private VisaCheckoutPaymentSummary visaCheckoutPaymentSummary;
 
     @Before
     public void setup() throws Exception {
         mConfigurationWithVisaCheckout = Configuration.fromJson(Fixtures.CONFIGURATION_WITH_VISA_CHECKOUT);
 
-        visaPaymentSummary = PowerMockito.mock(VisaPaymentSummary.class);
-        when(visaPaymentSummary.getCallId()).thenReturn("stubbedCallId");
-        when(visaPaymentSummary.getEncKey()).thenReturn("stubbedEncKey");
-        when(visaPaymentSummary.getEncPaymentData()).thenReturn("stubbedEncPaymentData");
-        PowerMockito.whenNew(VisaPaymentSummary.class).withAnyArguments().thenReturn(visaPaymentSummary);
+        visaCheckoutPaymentSummary = new VisaCheckoutPaymentSummary("stubbedCallId", "stubbedEncKey", "stubbedEncPaymentData");
     }
 
     @Test
@@ -69,7 +47,7 @@ public class VisaCheckoutClientUnitTest {
         sut.createProfileBuilder(listener);
 
         ArgumentCaptor<ConfigurationException> captor = ArgumentCaptor.forClass(ConfigurationException.class);
-        verify(listener, times(1)).onResult((ProfileBuilder) isNull(), captor.capture());
+        verify(listener, times(1)).onResult((VisaCheckoutProfile) isNull(), captor.capture());
 
         ConfigurationException configurationException = captor.getValue();
         assertEquals("Visa Checkout is not enabled.", configurationException.getMessage());
@@ -95,10 +73,10 @@ public class VisaCheckoutClientUnitTest {
 
         sut.createProfileBuilder(new VisaCheckoutCreateProfileBuilderCallback() {
             @Override
-            public void onResult(ProfileBuilder profileBuilder, Exception error) {
+            public void onResult(VisaCheckoutProfile profile, Exception error) {
                 List<String> expectedCardBrands = Arrays.asList(CardBrand.VISA, CardBrand.MASTERCARD);
-                Profile profile = profileBuilder.build();
                 assertNotNull(profile);
+                assertEquals(expectedCardBrands.toArray(), profile.getProfile().getAcceptedCardBrands());
                 lock.countDown();
             }
         });
@@ -126,10 +104,10 @@ public class VisaCheckoutClientUnitTest {
 
         sut.createProfileBuilder(new VisaCheckoutCreateProfileBuilderCallback() {
             @Override
-            public void onResult(ProfileBuilder profileBuilder, Exception error) {
+            public void onResult(VisaCheckoutProfile profile, Exception error) {
                 List<String> expectedCardBrands = Arrays.asList(CardBrand.VISA, CardBrand.MASTERCARD);
-                Profile profile = profileBuilder.build();
                 assertNotNull(profile);
+                assertEquals(expectedCardBrands.toArray(), profile.getProfile().getAcceptedCardBrands());
                 lock.countDown();
             }
         });
@@ -152,7 +130,7 @@ public class VisaCheckoutClientUnitTest {
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
         VisaCheckoutTokenizeCallback listener = mock(VisaCheckoutTokenizeCallback.class);
-        sut.tokenize(visaPaymentSummary, listener);
+        sut.tokenize(visaCheckoutPaymentSummary, listener);
 
         verify(listener).onResult(visaCheckoutNonce, null);
     }
@@ -172,7 +150,7 @@ public class VisaCheckoutClientUnitTest {
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
         VisaCheckoutTokenizeCallback listener = mock(VisaCheckoutTokenizeCallback.class);
-        sut.tokenize(visaPaymentSummary, listener);
+        sut.tokenize(visaCheckoutPaymentSummary, listener);
 
         verify(braintreeClient).sendAnalyticsEvent("visacheckout.tokenize.succeeded");
     }
@@ -190,7 +168,7 @@ public class VisaCheckoutClientUnitTest {
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
         VisaCheckoutTokenizeCallback listener = mock(VisaCheckoutTokenizeCallback.class);
-        sut.tokenize(visaPaymentSummary, listener);
+        sut.tokenize(visaCheckoutPaymentSummary, listener);
 
         verify(listener).onResult(null, tokenizeError);
     }
@@ -208,7 +186,7 @@ public class VisaCheckoutClientUnitTest {
         VisaCheckoutClient sut = new VisaCheckoutClient(braintreeClient, tokenizationClient);
 
         VisaCheckoutTokenizeCallback listener = mock(VisaCheckoutTokenizeCallback.class);
-        sut.tokenize(visaPaymentSummary, listener);
+        sut.tokenize(visaCheckoutPaymentSummary, listener);
 
         verify(braintreeClient).sendAnalyticsEvent("visacheckout.tokenize.failed");
     }

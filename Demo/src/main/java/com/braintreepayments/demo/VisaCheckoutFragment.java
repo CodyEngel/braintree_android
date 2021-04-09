@@ -13,9 +13,12 @@ import com.braintreepayments.api.PaymentMethodNonce;
 import com.braintreepayments.api.VisaCheckoutButtonContainer;
 import com.braintreepayments.api.VisaCheckoutButtonInitializeCallback;
 import com.braintreepayments.api.VisaCheckoutClient;
+import com.braintreepayments.api.VisaCheckoutCurrency;
 import com.braintreepayments.api.VisaCheckoutPaymentSummary;
 import com.braintreepayments.api.VisaCheckoutProfile;
 import com.braintreepayments.api.VisaCheckoutPurchaseInfo;
+
+import java.math.BigDecimal;
 
 public class VisaCheckoutFragment extends BaseFragment {
 
@@ -42,7 +45,7 @@ public class VisaCheckoutFragment extends BaseFragment {
     }
 
     private void setupVisaCheckoutButton(VisaCheckoutProfile profile) {
-        VisaCheckoutPurchaseInfo purchaseInfo = new VisaCheckoutPurchaseInfo("1.00", "USD");
+        VisaCheckoutPurchaseInfo purchaseInfo = new VisaCheckoutPurchaseInfo(new BigDecimal("1.00"), VisaCheckoutCurrency.USD);
 
         visaCheckoutButton.initialize(getActivity(), profile, purchaseInfo, new VisaCheckoutButtonInitializeCallback() {
             @Override
