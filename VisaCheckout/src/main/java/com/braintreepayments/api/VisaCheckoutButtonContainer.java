@@ -12,7 +12,6 @@ import android.widget.RemoteViews;
 import androidx.fragment.app.FragmentActivity;
 
 import com.visa.checkout.CheckoutButton;
-import com.visa.checkout.Profile;
 import com.visa.checkout.VisaCheckoutSdk;
 import com.visa.checkout.VisaPaymentSummary;
 

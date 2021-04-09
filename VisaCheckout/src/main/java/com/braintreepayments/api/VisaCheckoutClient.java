@@ -3,10 +3,6 @@ package com.braintreepayments.api;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import com.visa.checkout.Environment;
-import com.visa.checkout.Profile;
-import com.visa.checkout.VisaPaymentSummary;
-
 import java.util.List;
 
 /**
@@ -15,8 +11,8 @@ import java.util.List;
  */
 public class VisaCheckoutClient {
 
-    private BraintreeClient braintreeClient;
-    private TokenizationClient tokenizationClient;
+    private final BraintreeClient braintreeClient;
+    private final TokenizationClient tokenizationClient;
 
     public VisaCheckoutClient(BraintreeClient braintreeClient) {
         this(braintreeClient, new TokenizationClient(braintreeClient));
@@ -29,25 +25,8 @@ public class VisaCheckoutClient {
     }
 
     /**
-     * Creates a {@link Profile.ProfileBuilder} with the merchant API key, environment, and other properties to be used with
+     * Creates a {@link VisaCheckoutProfile} with the merchant API key, environment, and other properties to be used with
      * Visa Checkout.
-     *
-     * In addition to setting the `merchantApiKey` and `environment` the other properties that Braintree will fill in
-     * on the ProfileBuilder are:
-     * <ul>
-     *     <li>
-     *         {@link Profile.ProfileBuilder#setCardBrands(String[])} A list of Card brands that your merchant account can
-     *         transact.
-     *     </li>
-     *     <li>
-     *         {@link Profile.ProfileBuilder#setDataLevel(String)} - Required to be {@link Profile.DataLevel#FULL} for Braintree to
-     *     access card details
-     *     </li>
-     *     <li>
-     *         {@link Profile.ProfileBuilder#setExternalClientId(String)} -  Allows the encrypted payload to be processable
-     *         by Braintree.
-     *     </li>
-     * </ul>
      *
      * @param callback {@link VisaCheckoutCreateProfileBuilderCallback}
      */
@@ -65,13 +44,8 @@ public class VisaCheckoutClient {
 
                 String merchantApiKey = configuration.getVisaCheckoutApiKey();
                 List<String> acceptedCardBrands = configuration.getVisaCheckoutSupportedNetworks();
-                String environment = Environment.SANDBOX;
 
-                if ("production".equals(configuration.getEnvironment())) {
-                    environment = Environment.PRODUCTION;
-                }
-
-                VisaCheckoutProfile profile = new VisaCheckoutProfile(merchantApiKey, environment, acceptedCardBrands, configuration.getVisaCheckoutExternalClientId());
+                VisaCheckoutProfile profile = new VisaCheckoutProfile(merchantApiKey, configuration.getEnvironment(), acceptedCardBrands, configuration.getVisaCheckoutExternalClientId());
 
                 callback.onResult(profile, null);
             }
@@ -90,7 +64,7 @@ public class VisaCheckoutClient {
     /**
      * Tokenizes the payment summary of the Visa Checkout flow.
      *
-     * @param visaPaymentSummary {@link VisaPaymentSummary} The Visa payment to tokenize.
+     * @param visaPaymentSummary {@link VisaCheckoutPaymentSummary} The Visa payment to tokenize.
      * @param callback {@link VisaCheckoutTokenizeCallback}
      */
     public void tokenize(VisaCheckoutPaymentSummary visaPaymentSummary, final VisaCheckoutTokenizeCallback callback) {
