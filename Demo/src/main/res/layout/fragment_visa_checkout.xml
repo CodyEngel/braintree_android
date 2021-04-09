@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".VisaCheckoutFragment">
 
-    <com.visa.checkout.CheckoutButton
+    <com.braintreepayments.api.VisaCheckoutButtonContainer
         android:id="@+id/visa_checkout_button"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
