@@ -3,10 +3,6 @@ package com.braintreepayments.api;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import com.visa.checkout.CheckoutButton;
-import com.visa.checkout.Environment;
-import com.visa.checkout.VisaCheckoutSdk;
-
 import java.util.List;
 
 /**
@@ -17,7 +13,7 @@ public class VisaCheckoutClient {
 
     private final BraintreeClient braintreeClient;
     private final TokenizationClient tokenizationClient;
-    private ClassHelper classHelper;
+    private final ClassHelper classHelper;
 
     public VisaCheckoutClient(BraintreeClient braintreeClient) {
         this(braintreeClient, new TokenizationClient(braintreeClient), new ClassHelper());

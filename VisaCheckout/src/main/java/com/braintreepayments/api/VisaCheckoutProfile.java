@@ -7,11 +7,10 @@ import java.util.List;
 
 public class VisaCheckoutProfile {
 
-    private Profile.ProfileBuilder profileBuilder;
-    private String merchantApiKey;
-    private String environment;
-    private List<String> acceptedCardBrands;
-    private String externalClientId;
+    private final String merchantApiKey;
+    private final String environment;
+    private final List<String> acceptedCardBrands;
+    private final String externalClientId;
 
     public VisaCheckoutProfile(String merchantApiKey, String environment, List<String> acceptedCardBrands, String externalClientId) {
         this.environment = environment;
@@ -21,8 +20,8 @@ public class VisaCheckoutProfile {
     }
 
     public Profile getProfile() {
-        profileBuilder = new Profile.ProfileBuilder(merchantApiKey, getEnvironment());
-        profileBuilder.setCardBrands(acceptedCardBrands.toArray(new String[acceptedCardBrands.size()]));
+        Profile.ProfileBuilder profileBuilder = new Profile.ProfileBuilder(merchantApiKey, getEnvironment());
+        profileBuilder.setCardBrands(acceptedCardBrands.toArray(new String[0]));
         profileBuilder.setDataLevel(Profile.DataLevel.FULL);
         profileBuilder.setExternalClientId(externalClientId);
         return profileBuilder.build();

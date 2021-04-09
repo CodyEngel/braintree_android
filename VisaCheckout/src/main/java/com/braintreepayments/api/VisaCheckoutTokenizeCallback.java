@@ -1,10 +1,8 @@
 package com.braintreepayments.api;
 
-import com.visa.checkout.VisaPaymentSummary;
-
 /**
  * Callback for receiving result of
- * {@link VisaCheckoutClient#tokenize(VisaPaymentSummary, VisaCheckoutTokenizeCallback)}.
+ * {@link VisaCheckoutClient#tokenize(VisaCheckoutPaymentSummary, VisaCheckoutTokenizeCallback)}.
  */
 public interface VisaCheckoutTokenizeCallback {
 
